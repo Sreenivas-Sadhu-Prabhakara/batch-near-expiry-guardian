@@ -1,0 +1,15 @@
+# the built binary
+/batch-near-expiry-guardian
+/batch-near-expiry-guardian.exe
+
+# local records — these are the shop's purchase prices and supplier terms,
+# never commit them
+*-data.json
+*-data.json.tmp-*
+
+# editor and OS litter
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/

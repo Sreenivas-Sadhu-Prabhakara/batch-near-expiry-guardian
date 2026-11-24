@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; form-action 'self'">
+<meta name="description" content="A free, offline tool for independent pharmacies in India and the Philippines: track stock by batch and expiry date, see what the short-dated stock is worth, and catch the distributor's return window before it shuts.">
+<title>Medicine batch and expiry tracker for independent pharmacies · Open MSME</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script src="assets/theme-init.js"></script>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/accent.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <span class="brand"><span class="dot"></span> Batch &amp; Near-Expiry Guardian <span class="tag">Open MSME</span></span>
+    <span class="sp"></span>
+    <a class="home" href="https://sreenivas-sadhu-prabhakara.github.io/openmsme/">All tools</a>
+    <button class="themer" type="button" data-themer>Theme</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <p class="eyebrow">Healthcare &amp; diagnostics · India and the Philippines</p>
+    <h1>Medicine batch and expiry tracker for independent pharmacies</h1>
+    <p class="lede">A quantity on a spreadsheet cannot tell you that 180 of your 240 amoxicillin capsules are the batch that dies in March. This tracks stock by batch and expiry date on your own machine, puts a money figure on what is about to die, and tells you which batches can still go back to the distributor for credit before that window shuts.</p>
+    <div class="who">
+      <span class="pill">Independent pharmacy owners</span>
+      <span class="pill">Chemists, botikas and diagnostic labs</span>
+      <span class="pill reg">Drugs and Cosmetics Act, 1940 · FDA Philippines licence to operate</span>
+      <span class="pill">One binary, no internet</span>
+    </div>
+  </section>
+
+  <div class="cols">
+    <section class="card">
+      <h2>The number that makes an owner act</h2>
+      <div class="result-primary">
+        <div class="k">Value at cost of stock inside an alert tier</div>
+        <div class="v">&#8377;2,178.00</div>
+        <div class="sub">3 batches · 80 units · &#8377;3,240.00 at retail · out of &#8377;5,300.00 of stock on hand</div>
+      </div>
+      <table class="breakdown">
+        <tbody>
+          <tr><td>Still inside the return window</td><td class="num">&#8377;1,000.00</td></tr>
+          <tr><td>Past the window, must be sold down</td><td class="num">&#8377;1,300.00</td></tr>
+          <tr class="sub"><td>Expired on the shelf, to segregate</td><td class="num neg">&#8377;1,000.00</td></tr>
+          <tr class="total"><td>Credit you can still claim today</td><td class="num">&#8377;1,000.00</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Figures from the worked example in the tool's own tests, in rupees. A Philippine shop sees the same screen in pesos.</p>
+    </section>
+  </div>
+
+  <div class="prose">
+
+    <h2>What it does</h2>
+    <p>You record each lot of stock as it arrives: the product, the batch number printed on the carton, the expiry, how many units you have, what you paid and what it sells for. From that the tool works out, for any date you ask about:</p>
+    <ul>
+      <li><strong>What is about to die, in money.</strong> Not a count of lines, a value at cost — and the sale that will not happen alongside it.</li>
+      <li><strong>What can still go back.</strong> Every batch inside your distributor's return window, earliest deadline first, with the credit you would expect.</li>
+      <li><strong>Which batch to hand over.</strong> First expiry, first out — which is not the same as first in, first out, because the consignment that arrived last week may well carry the earlier expiry.</li>
+      <li><strong>What expiry has already cost you.</strong> Write-offs added up over a look-back window, so the trade's "two to five percent of stock value" becomes your own figure instead of somebody else's rule of thumb.</li>
+    </ul>
+
+    <h2>Who it's for</h2>
+    <p>The single-counter pharmacy, the two-branch chemist, the botika, the diagnostic lab with reagents and test kits on a shelf. Anyone holding stock that dies on a date, counting it in a spreadsheet, and finding out about a dead batch when a customer is already at the counter.</p>
+    <p>It is for the owner, not for an IT department. There is nothing to install beyond one file, no account to create, no subscription, and no server anywhere.</p>
+
+    <h2>The rules it implements</h2>
+
+    <h3>The expiry printed on the pack</h3>
+    <p>Most medicine packs carry a month and a year — <code>EXP 03/2027</code>, <code>EXP MAR 2027</code> — and not a day. The settled trade convention, and the one every distributor's credit-note desk works to, is that such a pack is good through the <strong>last day</strong> of the labelled month. So <code>03/2027</code> is read as 31 March 2027, <code>02/2028</code> as 29 February 2028 and <code>02/2027</code> as 28 February. A pack is saleable through the whole of its expiry date: the expiry day itself shows as urgent, and the day after it is expired by one day. Getting that off by one would either condemn a day of good stock or let somebody dispense a dead pack.</p>
+
+    <h3>Where the law comes in</h3>
+    <p>In <strong>India</strong>, the Drugs and Cosmetics Act, 1940 and the Drugs Rules, 1945 make it an offence to sell, or to stock or exhibit for sale, a drug after its labelled date of expiry. The conditions of a retail sale licence (Forms 20 and 21) require stock to be stored as labelled and expired stock to be kept apart from saleable stock. Expired stock on a shelf is a compliance problem, not only a loss. Confirm the current position with the <strong>CDSCO</strong> and your State Drugs Control Department.</p>
+    <p>In the <strong>Philippines</strong>, a retail drug outlet operates under a Licence to Operate from the <strong>FDA</strong> under Republic Act No. 3720 as amended by Republic Act No. 9711 (the FDA Act of 2009), with the Philippine Pharmacy Act of 2016 (Republic Act No. 10918) governing practice. Expired products must be segregated from saleable stock and must not be dispensed. Confirm the current position with <strong>FDA Philippines</strong> and the Professional Regulation Commission.</p>
+    <p>The tool reflects both in the same way: expired stock is never allocated on a pick list, it is flagged for segregation and disposal, and it is reported separately from stock that is merely short-dated. Short-dated stock is perfectly legal to sell, which is the whole point of catching it early.</p>
+
+    <h3>Where the law does not come in</h3>
+    <p>The <strong>return window is not a regulation</strong>. No law in either market obliges a distributor to take back saleable near-expiry stock, and no regulator fixes when they will. It is a commercial term in your purchase agreement, it differs by distributor and by product line, and some lines cannot be returned at all. The tool ships with the commonest terms in the trade as a starting point and expects you to replace them with your own:</p>
+    <table class="breakdown">
+      <thead><tr><th>Figure</th><th class="num">Default</th><th>Where it comes from</th></tr></thead>
+      <tbody>
+        <tr><td>Watch tier</td><td class="num">90 days</td><td>Your choice of how early to be told</td></tr>
+        <tr><td>Warn tier</td><td class="num">60 days</td><td>Your choice</td></tr>
+        <tr><td>Urgent tier</td><td class="num">30 days</td><td>Your choice</td></tr>
+        <tr><td>Return window opens</td><td class="num">180 days before expiry</td><td>Trade practice — indicative</td></tr>
+        <tr><td>Return window closes</td><td class="num">90 days before expiry</td><td>Trade practice — indicative</td></tr>
+        <tr><td>Dispatch lead time</td><td class="num">0 days</td><td>Your logistics; no default can be honest</td></tr>
+        <tr><td>Credit rate</td><td class="num">100% of cost</td><td>No deduction assumed; most agreements deduct something</td></tr>
+        <tr class="sub"><td>Closing-soon notice</td><td class="num">14 days</td><td>How loudly the screen talks</td></tr>
+        <tr class="sub"><td>Loss look-back</td><td class="num">365 days</td><td>How far back the loss log counts</td></tr>
+      </tbody>
+    </table>
+    <p>Every one of those is a named constant in one file and every one is editable in the tool. Nothing is hard-coded twice.</p>
+    <p>Notice what the two defaults do together: the return window closes 90 days before expiry, which is the same day the watch tier opens. By the time a batch reaches the warn tier, the window has already shut. That is exactly the gap a message in a group chat cannot close — it is no use being told about a dying batch in month two when the credit note had to be raised in month six.</p>
+
+    <h3>One statutory deadline on the returns side (India)</h3>
+    <p>Under section 34(2) of the Central Goods and Services Tax Act, 2017, a credit note against a supply may not be declared later than <strong>30 November</strong> following the end of the financial year in which the supply was made, or the date the annual return is furnished, whichever is earlier. A distributor who takes stock back after that date cannot adjust the tax on it, which in practice means no credit note. So a batch bought three financial years ago can sit squarely inside the distributor's window and still be past saving — a case nobody spots by eye.</p>
+    <p>When you record the purchase invoice date, the tool works that cut-off out and uses whichever deadline falls first, and says which one it used. The month was 30 September until it moved to 30 November with effect from 1 October 2022, so the figure is a named constant you can change. <strong>Indicative:</strong> confirm the current position with the <strong>CBIC</strong> or your tax adviser. This tool knows of no Philippine equivalent and says so rather than guessing one.</p>
+
+    <h2>Install &amp; run</h2>
+    <pre><code>git clone https://github.com/sreenivas-sadhu-prabhakara/batch-near-expiry-guardian.git
+cd batch-near-expiry-guardian
+
+# run it straight away
+go run .
+
+# or build the single binary and keep it
+go build -o batch-near-expiry-guardian .
+./batch-near-expiry-guardian
+
+# then open
+http://127.0.0.1:8080</code></pre>
+    <p>Two flags, both optional:</p>
+    <pre><code>./batch-near-expiry-guardian -addr 127.0.0.1:9000 \
+    -data /Users/me/Documents/pharmacy/stock.json</code></pre>
+    <p>It binds to the loopback address, so it is reachable only from the machine it runs on. It needs Go 1.25 to build and nothing at all to run.</p>
+
+    <h2>Your stock sheet, as it is</h2>
+    <p>The import reads a CSV and only insists on three columns: a product, a batch number and an expiry. It will pick up quantity, cost, price, supplier, shelf and invoice date under most of the names a shop actually uses — <code>item</code>, <code>lot no</code>, <code>exp</code>, <code>qty</code>, <code>rate</code>, <code>mrp</code>, <code>ptr</code>, <code>rack</code>, <code>bill date</code>. An expiry written <code>03/2027</code> is read as 31 March 2027.</p>
+    <p>Nothing is guessed. A line missing a product, a batch number or an expiry is skipped and reported with its line number, because a guessed expiry is worse than no record at all. An import replaces the stock list rather than merging into it, and says so, since merging two counts of one shelf is how a count silently doubles.</p>
+
+    <h2>What it stores</h2>
+    <p>One plain JSON file on your own machine, at <code>./batch-near-expiry-guardian-data.json</code> unless you point <code>-data</code> somewhere else. It is written atomically — a temporary file, then a rename — so a power cut leaves the previous good file rather than half a file, and it is created readable by its owner only, because it holds your purchase prices and supplier terms.</p>
+    <p>Nothing leaves the machine. There is no telemetry, no analytics, no update check, no font or script loaded from anywhere, and no connection to any portal or distributor system. You can read the data file in a text editor and back it up like any other file.</p>
+    <p>Taking stock off the shelf records a change in quantity and nothing else: no customer, no prescriber, no sale. This is a stock book, not a sale register, and it keeps nothing that would make it one.</p>
+
+    <h2>Features</h2>
+    <div class="featgrid">
+      <div class="feat">
+        <h3>Batch-level stock</h3>
+        <p>Every lot separately: batch number, expiry, quantity, cost, retail price, supplier and shelf location, so somebody can actually go and fetch it.</p>
+      </div>
+      <div class="feat">
+        <h3>Carton expiries</h3>
+        <p>Type <code>03/2027</code>, <code>MAR 2027</code> or a full date. The tool shows you what it made of it before you save, and handles leap years and month ends properly.</p>
+      </div>
+      <div class="feat">
+        <h3>30/60/90 day tiers</h3>
+        <p>Three tiers because they are three different decisions: return it, discount it, or hope. All three are yours to change.</p>
+      </div>
+      <div class="feat">
+        <h3>Return deadlines</h3>
+        <p>When the window opens, when it shuts, and the last day you can act once your dispatch time and the credit-note cut-off are taken into account.</p>
+      </div>
+      <div class="feat">
+        <h3>Money, not line counts</h3>
+        <p>Value at cost and at retail, the credit you can still claim, what you have stranded past the window, and what has already died.</p>
+      </div>
+      <div class="feat">
+        <h3>FEFO pick order</h3>
+        <p>Ask for 200 capsules and get the batches to take, in order, with the shelf they are on. Expired lots are never allocated and always reported.</p>
+      </div>
+      <div class="feat">
+        <h3>Your own loss figure</h3>
+        <p>Write-offs added up over a look-back window, against the cost value of stock on hand, so you stop guessing what expiry costs you.</p>
+      </div>
+      <div class="feat">
+        <h3>Look ahead to any date</h3>
+        <p>Set the "as of" date forward and see what next month's board looks like, before you place an order that makes it worse.</p>
+      </div>
+      <div class="feat">
+        <h3>In and out by CSV</h3>
+        <p>Import the sheet you already keep; export everything, graded and priced, for your accountant or your distributor.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <p><strong>What this tool is not.</strong> It is a stock book that does arithmetic on dates and money. It is not a statutory register, not a billing system, and not advice — legal, tax or professional.</p>
+      <p>The tiers and the return window are defaults, not facts. <strong>No regulator sets the return window:</strong> your distributor's credit-note policy is the only authority for it, and it differs by company and product. Get yours in writing and put the real figures in Settings before you rely on the money columns. The Indian credit-note cut-off and the licence conditions above are stated as they were understood at the time of writing and are marked indicative; confirm them with the CDSCO, the CBIC, FDA Philippines or your own adviser. The credit you actually receive depends on your distributor accepting the goods, and nothing here obliges them to.</p>
+      <p>The loss figure is measured against the cost value of stock on hand today, not against a year of purchases, because the tool never sees your purchases. Read it as an order of magnitude, not an audited number.</p>
+    </div>
+
+    <details class="assumptions">
+      <summary>Assumptions, stated plainly</summary>
+      <ul>
+        <li>A pack labelled with only a month and year is good through the last day of that month, and is saleable through the whole of its expiry date.</li>
+        <li>Alert tiers default to 90, 60 and 30 days before expiry; all three are editable.</li>
+        <li>The distributor's return window defaults to opening 180 days before expiry and closing 90 days before, with no dispatch lead time and credit at 100% of what you paid. Every one of those four is indicative and editable.</li>
+        <li>The Indian credit-note cut-off is 30 November following the 31 March financial year end of the purchase, applied only when you record a purchase invoice date and only for the Indian market.</li>
+        <li>Money is held in whole paise or centavos, never as a decimal fraction, so a hundred batches add up to the paisa. A percentage of an amount rounds half away from zero, as it would on paper.</li>
+        <li>Quantity is a whole number of whatever unit you count in — strips, bottles, boxes. The tool does not convert between units.</li>
+        <li>The loss look-back is 365 days and includes both its first and its last day.</li>
+      </ul>
+    </details>
+
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Open MSME &middot; free tools for small businesses in India and the Philippines &middot; MIT licensed</span>
+    <span><a href="https://sreenivas-sadhu-prabhakara.github.io/openmsme/">All tools</a></span>
+  </div>
+</footer>
+
+<script src="assets/ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; form-action 'self'; connect-src 'self'">
+<meta name="robots" content="noindex, nofollow">
+<title>Batch and Near-Expiry Guardian · Open MSME</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script src="assets/theme-init.js"></script>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/accent.css">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <span class="brand"><span class="dot"></span> Batch &amp; Near-Expiry Guardian <span class="tag">Open MSME</span></span>
+    <span class="sp"></span>
+    <span class="tag" id="data-file" title="Where your records are stored"></span>
+    <button class="themer" type="button" data-themer>Theme</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <p class="eyebrow">Healthcare &amp; diagnostics · India and the Philippines</p>
+    <h1>Medicine batch and expiry tracker for independent pharmacies</h1>
+    <p class="lede">A quantity on a spreadsheet cannot tell you which batch dies in March. Track stock by batch and expiry, see what it is worth, and catch the distributor's return window before it shuts.</p>
+    <div class="who">
+      <span class="pill">Independent pharmacy owners</span>
+      <span class="pill reg" id="reg-pill">Retail drug outlet licence conditions</span>
+      <span class="pill">Runs on your machine</span>
+    </div>
+  </section>
+
+  <nav class="tabs seg" aria-label="Sections">
+    <button type="button" data-tab="shelf" aria-pressed="true">Shelf</button>
+    <button type="button" data-tab="returns" aria-pressed="false">Returns &amp; credit</button>
+    <button type="button" data-tab="batches" aria-pressed="false">Batches</button>
+    <button type="button" data-tab="pick" aria-pressed="false">Pick order</button>
+    <button type="button" data-tab="settings" aria-pressed="false">Data &amp; settings</button>
+  </nav>
+
+  <p class="flash" id="flash" role="status" aria-live="polite" hidden></p>
+
+  <!-- ───────── shelf ───────── -->
+  <section class="card panel" id="panel-shelf">
+    <h2>What is about to die on the shelf</h2>
+    <div class="field asof">
+      <label for="asof">As of <span class="hint">leave at today, or look ahead to a date</span></label>
+      <div class="inp"><input type="date" id="asof"></div>
+    </div>
+
+    <div class="result-primary">
+      <div class="k">Value at cost of stock inside an alert tier</div>
+      <div class="v" id="hl-atrisk">&mdash;</div>
+      <div class="sub" id="hl-atrisk-sub"></div>
+    </div>
+
+    <div class="moneyrow">
+      <div class="mcard ok">
+        <div class="l">Still inside the return window</div>
+        <div class="n" id="hl-open">&mdash;</div>
+        <div class="s" id="hl-open-sub"></div>
+      </div>
+      <div class="mcard warn">
+        <div class="l">Past the window, must be sold</div>
+        <div class="n" id="hl-stranded">&mdash;</div>
+        <div class="s" id="hl-stranded-sub"></div>
+      </div>
+      <div class="mcard bad">
+        <div class="l">Expired on the shelf</div>
+        <div class="n" id="hl-dead">&mdash;</div>
+        <div class="s" id="hl-dead-sub"></div>
+      </div>
+    </div>
+
+    <div class="counts" id="tier-counts"></div>
+
+    <div class="tablewrap">
+      <table class="breakdown board">
+        <thead>
+          <tr>
+            <th>Tier</th><th>Batch</th><th>Expires</th><th class="num">Qty</th>
+            <th class="num">At cost</th><th>Return window</th><th>Next action</th>
+          </tr>
+        </thead>
+        <tbody id="shelf-rows"></tbody>
+      </table>
+    </div>
+    <p class="empty" id="shelf-empty" hidden>Nothing on file yet. Add a batch, or import your stock sheet under Data &amp; settings.</p>
+    <p class="note" id="tier-note"></p>
+  </section>
+
+  <!-- ───────── returns ───────── -->
+  <section class="card panel" id="panel-returns" hidden>
+    <h2>What can still go back for credit</h2>
+    <p class="hint">Earliest deadline first. The deadline is the day the window shuts, pulled back by your dispatch lead time, and pulled back again if a credit note can no longer be raised against the purchase.</p>
+
+    <div class="result-primary">
+      <div class="k">Credit you can still claim</div>
+      <div class="v" id="ret-recover">&mdash;</div>
+      <div class="sub" id="ret-sub"></div>
+    </div>
+
+    <div class="tablewrap">
+      <table class="breakdown board">
+        <thead>
+          <tr>
+            <th>Deadline</th><th>Batch</th><th>Supplier</th><th class="num">Qty</th>
+            <th class="num">At cost</th><th class="num">Credit</th><th>Set by</th><th>Done</th>
+          </tr>
+        </thead>
+        <tbody id="returns-rows"></tbody>
+      </table>
+    </div>
+    <p class="empty" id="returns-empty" hidden>Nothing is inside a return window today.</p>
+    <p class="note" id="returns-note"></p>
+  </section>
+
+  <!-- ───────── batches ───────── -->
+  <section class="card panel" id="panel-batches" hidden>
+    <h2 id="batch-form-heading">Add a batch</h2>
+    <form id="batch-form" autocomplete="off">
+      <input type="hidden" id="batch-id">
+      <div class="row2">
+        <div class="field">
+          <label for="batch-product">Product <span class="hint">name, strength and form</span></label>
+          <div class="inp"><input type="text" id="batch-product" required maxlength="160" placeholder="Amoxicillin 500 mg capsule"></div>
+        </div>
+        <div class="field">
+          <label for="batch-pack">Pack <span class="hint">what you are counting</span></label>
+          <div class="inp"><input type="text" id="batch-pack" maxlength="160" placeholder="strip of 10"></div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="batch-no">Batch or lot number</label>
+          <div class="inp"><input type="text" id="batch-no" required maxlength="40" placeholder="AX2291"></div>
+        </div>
+        <div class="field">
+          <label for="batch-expiry">Expiry on the pack <span class="hint">03/2027, MAR 2027 or a full date</span></label>
+          <div class="inp"><input type="text" id="batch-expiry" required maxlength="20" placeholder="03/2027"></div>
+          <p class="reading" id="expiry-reading" aria-live="polite"></p>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="batch-qty">Quantity on hand</label>
+          <div class="inp"><input type="number" id="batch-qty" min="0" step="1" value="0"></div>
+        </div>
+        <div class="field">
+          <label for="batch-purchased">Purchase invoice date <span class="hint">optional; sets the credit-note cut-off</span></label>
+          <div class="inp"><input type="text" id="batch-purchased" maxlength="20" placeholder="01-08-2026"></div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="batch-cost">Unit cost <span class="hint">what you paid, per unit</span></label>
+          <div class="inp has-pre"><span class="pre" id="cost-sign">&#8377;</span><input type="text" id="batch-cost" maxlength="20" placeholder="12.10"></div>
+        </div>
+        <div class="field">
+          <label for="batch-price">Unit retail price <span class="hint">printed price, per unit</span></label>
+          <div class="inp has-pre"><span class="pre" id="price-sign">&#8377;</span><input type="text" id="batch-price" maxlength="20" placeholder="18.00"></div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="batch-supplier">Supplier <span class="hint">who would issue the credit note</span></label>
+          <div class="inp"><input type="text" id="batch-supplier" maxlength="160" list="supplier-list" placeholder="Metro Distributors"></div>
+          <datalist id="supplier-list"></datalist>
+        </div>
+        <div class="field">
+          <label for="batch-shelf">Shelf or rack <span class="hint">so somebody can fetch it</span></label>
+          <div class="inp"><input type="text" id="batch-shelf" maxlength="160" placeholder="A3"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="batch-note">Note <span class="hint">optional</span></label>
+        <div class="inp"><input type="text" id="batch-note" maxlength="500"></div>
+      </div>
+      <div class="btnrow">
+        <button class="btn primary" type="submit" id="batch-save">Save batch</button>
+        <button class="btn ghost" type="button" id="batch-cancel" hidden>Cancel edit</button>
+      </div>
+    </form>
+
+    <h3 class="sub">Every batch on file</h3>
+    <div class="tablewrap">
+      <table class="breakdown board">
+        <thead>
+          <tr>
+            <th>Batch</th><th>Expires</th><th class="num">Qty</th><th class="num">At cost</th>
+            <th>Supplier</th><th>Status</th><th>Change</th>
+          </tr>
+        </thead>
+        <tbody id="batch-rows"></tbody>
+      </table>
+    </div>
+    <p class="empty" id="batches-empty" hidden>No batches yet.</p>
+  </section>
+
+  <!-- ───────── pick ───────── -->
+  <section class="card panel" id="panel-pick" hidden>
+    <h2>Which batch to hand over</h2>
+    <p class="hint">First expiry, first out &mdash; not first in, first out. The lot that arrived last week may well be the one that dies first.</p>
+    <form id="pick-form" autocomplete="off">
+      <div class="row2">
+        <div class="field">
+          <label for="pick-product">Product</label>
+          <select id="pick-product"></select>
+        </div>
+        <div class="field">
+          <label for="pick-qty">Quantity to hand over</label>
+          <div class="inp"><input type="number" id="pick-qty" min="1" step="1" value="1"></div>
+        </div>
+      </div>
+      <div class="btnrow">
+        <button class="btn primary" type="submit">Show the pick order</button>
+      </div>
+    </form>
+
+    <div id="pick-result" hidden>
+      <div class="result-primary">
+        <div class="k">Take, in this order</div>
+        <div class="v" id="pick-head">&mdash;</div>
+        <div class="sub" id="pick-sub"></div>
+      </div>
+      <div class="tablewrap">
+        <table class="breakdown board">
+          <thead>
+            <tr><th>Order</th><th>Batch</th><th>Shelf</th><th>Expires</th><th class="num">Take</th><th class="num">Left after</th></tr>
+          </thead>
+          <tbody id="pick-rows"></tbody>
+        </table>
+      </div>
+      <h3 class="sub" id="skipped-heading" hidden>Passed over</h3>
+      <ul class="skipped" id="pick-skipped"></ul>
+      <div class="btnrow">
+        <button class="btn primary" type="button" id="pick-apply">Take this off the shelf</button>
+      </div>
+      <p class="note">Taking stock off the shelf records a change in quantity and nothing else. No customer, no prescriber and no sale is kept: this is a stock book, not a sale register.</p>
+    </div>
+
+    <h3 class="sub">Shelf order for this product</h3>
+    <div class="tablewrap">
+      <table class="breakdown board">
+        <thead>
+          <tr><th>Order</th><th>Batch</th><th>Expires</th><th class="num">Qty</th><th>Tier</th><th>Next action</th></tr>
+        </thead>
+        <tbody id="shelforder-rows"></tbody>
+      </table>
+    </div>
+    <p class="empty" id="shelforder-empty" hidden>Choose a product to see its shelf order.</p>
+  </section>
+
+  <!-- ───────── settings ───────── -->
+  <section class="card panel" id="panel-settings" hidden>
+    <h2>Your figures</h2>
+    <p class="hint">Every number this tool uses is here. None of them is set by a regulator: the tiers are how early you want to be told, and the return window is a term in your distributor's agreement.</p>
+    <form id="policy-form" autocomplete="off">
+      <div class="field">
+        <label for="pol-market">Market <span class="hint">sets the currency and which statutory points apply</span></label>
+        <select id="pol-market"></select>
+      </div>
+
+      <h3 class="sub">Alert tiers, in days before expiry</h3>
+      <div class="row3">
+        <div class="field">
+          <label for="pol-watch">Watch</label>
+          <div class="inp has-suf"><input type="number" id="pol-watch" min="1" step="1"><span class="suf">days</span></div>
+        </div>
+        <div class="field">
+          <label for="pol-warn">Warn</label>
+          <div class="inp has-suf"><input type="number" id="pol-warn" min="1" step="1"><span class="suf">days</span></div>
+        </div>
+        <div class="field">
+          <label for="pol-urgent">Urgent</label>
+          <div class="inp has-suf"><input type="number" id="pol-urgent" min="1" step="1"><span class="suf">days</span></div>
+        </div>
+      </div>
+
+      <h3 class="sub">Your distributor's return window</h3>
+      <div class="row3">
+        <div class="field">
+          <label for="pol-opens">Opens</label>
+          <div class="inp has-suf"><input type="number" id="pol-opens" min="1" step="1"><span class="suf">days</span></div>
+        </div>
+        <div class="field">
+          <label for="pol-closes">Closes</label>
+          <div class="inp has-suf"><input type="number" id="pol-closes" min="0" step="1"><span class="suf">days</span></div>
+        </div>
+        <div class="field">
+          <label for="pol-lead">Dispatch lead time</label>
+          <div class="inp has-suf"><input type="number" id="pol-lead" min="0" step="1"><span class="suf">days</span></div>
+        </div>
+      </div>
+      <div class="row3">
+        <div class="field">
+          <label for="pol-credit">Credit rate</label>
+          <div class="inp has-suf"><input type="number" id="pol-credit" min="1" max="100" step="1"><span class="suf">%</span></div>
+        </div>
+        <div class="field">
+          <label for="pol-soon">Closing-soon notice</label>
+          <div class="inp has-suf"><input type="number" id="pol-soon" min="0" step="1"><span class="suf">days</span></div>
+        </div>
+        <div class="field">
+          <label for="pol-loss">Loss look-back</label>
+          <div class="inp has-suf"><input type="number" id="pol-loss" min="1" max="3650" step="1"><span class="suf">days</span></div>
+        </div>
+      </div>
+      <div class="field checkline" id="cutoff-line">
+        <label for="pol-cutoff"><input type="checkbox" id="pol-cutoff"> Apply the Indian credit-note cut-off (30 November after the financial year of the purchase)</label>
+      </div>
+      <div class="btnrow">
+        <button class="btn primary" type="submit">Save my figures</button>
+        <button class="btn ghost" type="button" id="policy-reset">Back to the defaults</button>
+      </div>
+      <p class="note" id="defaults-note"></p>
+    </form>
+
+    <h3 class="sub">What expiry has cost you</h3>
+    <div class="moneyrow">
+      <div class="mcard bad">
+        <div class="l">Written off in the look-back</div>
+        <div class="n" id="loss-cost">&mdash;</div>
+        <div class="s" id="loss-sub"></div>
+      </div>
+      <div class="mcard ok">
+        <div class="l">Returned instead of lost</div>
+        <div class="n" id="loss-returned">&mdash;</div>
+        <div class="s" id="loss-returned-sub"></div>
+      </div>
+    </div>
+    <p class="note">The share is measured against the cost value of stock on hand today, not against a year of purchases, because this tool never sees your purchases. Read it as an order of magnitude.</p>
+
+    <h3 class="sub">Your stock sheet</h3>
+    <p class="hint">Import reads a CSV with a product, a batch number and an expiry; it will also pick up quantity, cost, price, supplier, shelf and invoice date under most of the names a shop actually uses. An expiry written as 03/2027 is read as 31 March 2027.</p>
+    <div class="field">
+      <label for="import-file">Choose a CSV file <span class="hint">this replaces the whole stock list</span></label>
+      <input type="file" id="import-file" accept=".csv,text/csv">
+    </div>
+    <div class="btnrow">
+      <button class="btn primary" type="button" id="import-run">Replace my stock list</button>
+      <a class="btn ghost" id="export-link" href="/api/export.csv" download="batches.csv">Download everything as CSV</a>
+    </div>
+    <div id="import-report" hidden>
+      <p class="hint" id="import-summary"></p>
+      <ul class="skipped" id="import-skipped"></ul>
+    </div>
+
+    <h3 class="sub">Where these rules come from</h3>
+    <div id="authorities"></div>
+
+    <h3 class="sub">Where your data lives</h3>
+    <p class="hint">One JSON file on this machine, written by this program and read by nothing else. Nothing is sent anywhere, there is no account and there is no update check. Back it up the way you back up anything else on this computer.</p>
+    <pre id="data-path">&mdash;</pre>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Batch &amp; Near-Expiry Guardian &middot; runs entirely on this machine</span>
+    <span><a href="https://sreenivas-sadhu-prabhakara.github.io/openmsme/">All tools</a></span>
+  </div>
+</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
